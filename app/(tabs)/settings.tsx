@@ -1,6 +1,5 @@
 import { View, Text, Button, TouchableOpacity, Alert } from "react-native";
 import React, { useEffect, useState } from "react";
-import { useAuth } from "@clerk/clerk-expo";
 import { Link, useRouter } from "expo-router";
 import { defaultStyles } from "@/constants/Styles";
 import { supabase } from "@/libs/supabase";
@@ -9,7 +8,6 @@ import { Session } from "@supabase/supabase-js";
 const Page = () => {
   const router = useRouter()
   const myStyles = defaultStyles();
-  const { signOut, isSignedIn } = useAuth();
   const [sess, setSess] = useState<Session | null>(null);
   const logout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -18,6 +16,9 @@ const Page = () => {
     router.push("/(modals)/login")
   };
 
+  const login = async()=>{
+    router.push("/(modals)/login")
+  }
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSess(session);
@@ -31,7 +32,7 @@ const Page = () => {
         </TouchableOpacity>
       )}
       {!sess && (
-        <TouchableOpacity style={myStyles.btn}>
+        <TouchableOpacity style={myStyles.btn} onPress={login}>
           <Text style={myStyles.btnText}>Log in</Text>
         </TouchableOpacity>
       )}
