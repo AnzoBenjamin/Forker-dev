@@ -1,31 +1,48 @@
-import { StyleSheet } from 'react-native';
+import { View, Text } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Link, Stack } from "expo-router";
+import { useColorScheme } from "react-native";
+import Colors from "@/constants/Colors";
+import ExploreHeader from "@/components/ExploreHeader";
+import Categories from "@/components/Categories";
+import axios from "axios";
 
-import EditScreenInfo from '../../components/EditScreenInfo';
-import { Text, View } from '../../components/Themed';
+const Page = () => {
+  const [category, setCategory] = useState("Snack");
+  const colorScheme = useColorScheme();
+  const colors = colorScheme === "dark" ? Colors.dark : Colors.light;
+  const [categories, setCategories] = useState<any[]>([]);
 
-export default function TabOneScreen() {
+  const onDataChanged = (category: string) => {
+    setCategory(category);
+  };
+
+  const getCategories = async () => {
+    try {
+      const { data } = await axios.get(
+        "https://themealdb.com/api/json/v1/1/categories.php"
+      );
+      if (data && data.categories) {
+        setCategories(data.categories);
+      }
+    } catch (error) {
+    }
+  };
+  useEffect(() => {
+    getCategories();
+  }, []);
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/index.tsx" />
+    <View style={{ flex: 1, marginTop: 80 }}>
+      {/* Define pour custom header */}
+      <Stack.Screen
+        options={{
+          header: () => <ExploreHeader />,
+        }}
+      />
+      <Categories categories={categories} onCategoryChanged={onDataChanged} />
     </View>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
-  },
-});
+export default Page;
